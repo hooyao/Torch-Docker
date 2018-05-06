@@ -1,0 +1,11 @@
+version: '2'
+services:
+  tf-gpu-36:
+    container_name: torchgpu36
+    image: hooyao/torch-docker:04_gpu
+    ports:
+      - "8888:8888"
+      - "6006:6006"
+    entrypoint: ["/bin/bash", "-c", "jupyter notebook --ip='*' --NotebookApp.token= --port=8888 --no-browser --allow-root"]
+    volumes:
+      - $HOME/DockerData/torch:/root/pyprojects
