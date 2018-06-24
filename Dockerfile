@@ -1,36 +1,36 @@
-FROM nvidia/cuda:9.0-cudnn7-runtime-ubuntu16.04
-MAINTAINER Hu Yao <hooyao@gmail.com>
+FROM nvidia/cuda:9.2-cudnn7-runtime-ubuntu16.04
+LABEL author="Hu Yao <hooyao@gmail.com>"
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+#ENV CONDA_BIN=https://repo.continuum.io/miniconda/Miniconda3-4.5.4-Linux-x86_64.sh
+ENV CONDA_BIN=https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-4.5.4-Linux-x86_64.sh
 
-ENV CONDA_ENV_NAME=pytorch-04-gpu-36
-ENV TORCH_URL_PREFIX=http://download.pytorch.org/whl/cu90/
-ENV TORCH_WHEEL_NAME=torch-0.4.0-cp36-cp36m-linux_x86_64.whl
+RUN apt-get -qq update && apt-get -qq -y install curl bzip2 \
+    && curl -sSL ${CONDA_BIN} -o /tmp/miniconda.sh \
+    && bash /tmp/miniconda.sh -bfp /usr/local \
+    && rm -rf /tmp/miniconda.sh \
+    && apt-get -qq -y remove curl bzip2 \
+    && apt-get -qq -y autoremove \
+    && apt-get autoclean \
+    && rm -rf /var/lib/apt/lists/* /var/log/dpkg.log \
+    && conda clean --all --yes
+ENV PATH /opt/conda/bin:$PATH
 
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-RUN apt-get update --fix-missing && apt-get install -y bzip2 curl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN curl  https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh --output miniconda.sh \
-    && chmod +wrx miniconda.sh \
-    && sh miniconda.sh -b \
-    && rm miniconda.sh
-ENV OLD_PATH=$PATH
-ENV PATH=/root/miniconda2/bin:$PATH
-RUN conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
-RUN conda config --set show_channel_urls yes
+RUN conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/ && \
+    conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/ && \
+    conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge && \
+    conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/ && \
+    conda config --set show_channel_urls yes
 
-RUN conda create -n ${CONDA_ENV_NAME} python=3.6 -y
-RUN curl ${TORCH_URL_PREFIX}${TORCH_WHEEL_NAME} --output ${TORCH_WHEEL_NAME} \
-    && chmod +wrx ${TORCH_WHEEL_NAME} \
-    && source activate ${CONDA_ENV_NAME} \
-    && pip install --ignore-installed --upgrade ${TORCH_WHEEL_NAME} \
-    && pip install torchvision \
-    && conda install pandas scikit-learn scipy matplotlib sympy -y \
-    && conda install jupyter nb_conda -y \
-    && conda clean -a \
-    && rm ${TORCH_WHEEL_NAME}
-ENV PATH=/root/miniconda2/envs/${CONDA_ENV_NAME}/bin/:$OLD_PATH
+RUN conda install -y python=3.6 && \
+    conda update conda && \
+    # use official channel
+    #conda install pytorch torchvision cuda91 -c pytorch &&\
+    # use tsinghua channel
+    conda install pytorch torchvision cuda91 &&\
+    conda install pandas scikit-learn scipy matplotlib sympy jupyter nb_conda -y &&\
+    conda clean -a && \
+    rm -rf /opt/conda/pkgs/*
 
 RUN mkdir /root/pyprojects
 WORKDIR /root/pyprojects
