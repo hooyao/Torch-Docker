@@ -1,8 +1,8 @@
 version: '2'
 services:
-  tf-gpu-36:
-    container_name: torchgpu36
-    image: hooyao/torch-docker:04_gpu
+  pytorch_11_gpu:
+    container_name: pytorch_11_gpu
+    image: hooyao/torch-docker:11_gpu
     ports:
       - "8888:8888"
       - "6006:6006"
