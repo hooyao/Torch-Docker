@@ -1,11 +1,11 @@
 version: '2'
 services:
-  pytorch_11_gpu:
-    container_name: pytorch_11_gpu
-    image: hooyao/torch-docker:11_gpu
+  torch_gpu:
+    container_name: torch_${IMG_TAG}
+    image: hooyao/torch-docker:${IMG_TAG}
     ports:
       - "8888:8888"
       - "6006:6006"
-    entrypoint: ["/bin/bash", "-c", "jupyter notebook --ip='*' --NotebookApp.token= --port=8888 --no-browser --allow-root"]
+    entrypoint: ["/bin/bash", "-c", "jupyter notebook --ip='0.0.0.0' --NotebookApp.token= --port=8888 --no-browser --allow-root"]
     volumes:
-      - $HOME/DockerData/torch:/root/pyprojects
+      - $CUR_DIR:/root/pyprojects
